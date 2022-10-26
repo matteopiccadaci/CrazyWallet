@@ -1,7 +1,7 @@
 <?php
       if(isset ($_GET['ajax'])){
         $out="";
-        if($_GET['ajax']==1 || $_GET['ajax']==2){
+
             if($_GET['timeframe']==1){
                 $json = file_get_contents('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='.$_GET['asset'].'&outputsize=compact&apikey=Z6AFRTAJ96TUCC02');
                 $data = json_decode($json,true);
@@ -21,17 +21,20 @@
                 $data = json_decode($json,true);
                 unset($data['Meta Data']);
                 $ts=$data['Monthly Time Series'];
-         } 
-        
-        }
-        foreach ($ts as $stocks){
-            $day= array_search($stocks,$ts);
-            $final[]=[
-              'x'=>$day,
-              'y'=>[$stocks['1. open'], $stocks['2. high'], $stocks['3. low'], $stocks['4. close']],
-            ];
+         }
+          if($_GET['ajax']==1 || $_GET['ajax']==2){
+            foreach ($ts as $stocks){
+                $day= array_search($stocks,$ts);
+                $final[]=[
+                    'x'=>$day,
+                    'y'=>[$stocks['1. open'], $stocks['2. high'], $stocks['3. low'], $stocks['4. close']],
+                ];
             }
-        echo json_encode($final);
+            echo json_encode($final);
+          }
+            else if ($_GET['ajax']==3) {
+
+              }
         exit();
         }# A prescindere da quale opzione (asset o timeframe) venga cambiato, l'operazione da fare è la stessa, quindi si può riutilizzare lo stesso codice.
         ?>
@@ -69,8 +72,8 @@
         &nbsp;
           <li class="nav-item">
             <a id="nav_link" class="nav-link active" aria-current="page" href="#">
-              <span data-feather="home" class="align-text-bottom"></span>
-              Dashboard
+              <span data-feather="user" class="align-text-bottom"></span>
+              Login
             </a>
             </li>
         </ul>
@@ -80,7 +83,7 @@
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Dashboard</h1>
+        <h1 id="asset_dash" class="h2" style="text-transform:uppercase">Stock Market</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
 
         <!-- popolamento select con le azioni e gli ETF -->
@@ -100,7 +103,33 @@
       <script id="script">chart(data)</script>
         </div>
 
-       
+        <div id="table" class="table-responsive" hidden>
+            <table class="table table-striped table-sm">
+                <thead>
+                <tr>
+                    <th scope="col">Rendimento</th>
+                    <th scope="col">Volatilità</th>
+                    <th scope="col">Drowdown</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><?php echo $final[1]['x']; ?></td>
+                    <td>data</td>
+                    <td>placeholder</td>
+                </tr>
+                <tr>
+                    <td>placeholder</td>
+                    <td>irrelevant</td>
+                    <td>visual</td>
+                </tr>
+                <tr>
+                    <td>data</td>
+                    <td>rich</td>
+                    <td>dashboard</td>
+                </tr>
+
+    </div>
 
       <!-- Come reperibile nei docs di Apexcharts, ogni grafico deve essere compreso all'interno di un div. -->
     
@@ -116,10 +145,13 @@
                     type:"get",
                     data:{timeframe:timeframe,asset:asset,ajax:1},
                     success: function(response){
-                        console.log(response);
+                        $('#asset_dash').html(asset);
                         $('#chart').empty();
                         $('#script').empty();
                         $('#script').html(chart(response));
+                        $('#table').removeAttr('hidden');
+
+
                     },
                     cache:true,
                     dataType:"json",
@@ -137,16 +169,21 @@
                     type:"get",
                     data:{timeframe:timeframe,asset:asset,ajax:2},
                     success: function(response){
-                        console.log(response);
+                        $('#asset_dash').html(asset);
                         $('#chart').empty();
                         $('#script').empty();
+                        $('#table').removeAttr(hidden);
                         $('#script').html(chart(response));
+                        $('#table').removeAttr('hidden');
+
                     },
                     cache:true,
                     dataType:"json",
                     })
             });
         // In questo ajax invece si valuta il cambio dell'asset.
+
+
 </script>
 </body>
 </html>

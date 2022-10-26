@@ -43,12 +43,15 @@ if (isset($_POST['registrati'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel='stylesheet' href ='CSS-JS/css/style.css'>
     <link rel='stylesheet' href ='CSS-JS/styleCrazyWallet2.css'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <a href="dashboard.php"><p style="font-family: 'Brush Script MT', cursive; font-weight:bolder; font-size:50px">Crazy Wallet</p></a>
+        <p style="font-family: 'Brush Script MT', cursive; font-weight:bolder; font-size:50px">Crazy Wallet</p>
     </div>
 
     <div class="card">

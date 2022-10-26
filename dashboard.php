@@ -9,7 +9,29 @@ $res=$connect_db->query($querynome);
 $arr=mysqli_fetch_array($res, MYSQLI_ASSOC);
 $nome=$arr['nome'];
 $cognome=$arr['cognome'];
+?> <!-- verifica dell'utente -->
+
+<?php
+if (isset($_GET['ajax'])) {
+    $json = file_get_contents('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='. $_GET['asset'].'&apikey=Z6AFRTAJ96TUCC02');
+
+    $data = json_decode($json, true);
+    unset($data['Meta Data']);
+    $ts = $data['Time Series (Daily)'];
+    foreach ($ts as $stocks) {
+        $day = array_search($stocks, $ts);
+        $final[] = [
+            'x' => $day,
+            'y' => [$stocks['1. open'], $stocks['2. high'], $stocks['3. low'], $stocks['4. close']],
+        ];
+    }
+    echo '<script>var data=[]</script>';
+    foreach ($final as $stock) {
+        echo '<script>data.push(' . json_encode($stock) . ');</script>';
+    }
+}
 ?>
+
 
 <!doctype html>
 <html>
@@ -23,6 +45,76 @@ $cognome=$arr['cognome'];
    <script src="CSS-JS/chart.js"></script>
    <link href="CSS-JS/styleCrazyWallet2.css" rel="stylesheet">
       <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style>
+      /*The webpage has been designed*/
+      *{
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      }
+
+      body{
+      background-color: #ffffff;
+      }
+
+      /*Basic structure of slider*/
+      .container{
+      width: 500px;
+      position: absolute;
+      transform: translate(-50%,-50%);
+      top: 50%;
+      left: 50%;
+      overflow: hidden;
+      border: 10px solid #ffffff;
+      border-radius: 8px;
+      box-shadow: -1px 5px 15px black;
+      }
+
+      /*Area of images*/
+      .wrapper{
+      width: 100%;
+      display: flex;
+      animation: slide 16s infinite;
+      }
+
+      img{
+      width: 100%;
+      }
+      /*Animation activated by keyframes*/
+      @keyframes slide{
+      0%{
+      transform: translateX(0);
+      }
+      25%{
+      transform: translateX(0);
+      }
+      30%{
+      transform: translateX(-100%);
+      }
+      50%{
+      transform: translateX(-100%);
+      }
+      55%{
+      transform: translateX(-200%);
+      }
+      75%{
+      transform: translateX(-200%);
+      }
+      80%{
+      transform: translateX(-300%);
+      }
+      100%{
+      transform: translateX(-300%);
+      }
+      }
+        </style>
+
+
+
+
+
+
   </head>
   <body>
 
@@ -88,163 +180,38 @@ $cognome=$arr['cognome'];
         <h1 class="h2">Dashboard</h1>
       </div>
 
-      <?php
-      $json = file_get_contents('https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=SHOP.TRT&apikey=Z6AFRTAJ96TUCC02');
-
-      $data = json_decode($json,true);
-      unset($data['Meta Data']);
-      $ts=$data['Monthly Time Series'];
-      foreach ($ts as $stocks){
-        $day= array_search($stocks,$ts);
-        $final[]=[
-          'x'=>$day,
-          'y'=>[$stocks['1. open'], $stocks['2. high'], $stocks['3. low'], $stocks['4. close']],
-        ];
-        }
-        echo '<script>var data=[]</script>';
-        foreach ($final as $stock){
-          echo '<script>data.push('.json_encode($stock).');</script>';
-        }
-      ?>
-
       <!-- Come reperibile nei docs di Apexcharts, ogni grafico deve essere compreso all'interno di un div. -->
 
+        <div class="card" style="width: 100%;">
+            <div class="card-body">
+                <select id="asset"class="form-select"aria-label=".form-select-lg example" style="width: 38%">
+                    <option selected>Asset</option>
+                    <option value="1">Giornaliero</option>
+                    <option value="2">Settimanale</option>
+                    <option value="3">Mensile</option>
+                </select>
+                <div id="chart"></div>
+                <script>chart(data);</script>
+            </div>
+            </div>
 
-      <div id="chart"></div>
-        <script>chart(data);</script>
-      
-      <h2>Section title</h2>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
-          <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Header</th>
-            <th scope="col">Header</th>
-            <th scope="col">Header</th>
-            <th scope="col">Header</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td><?php $final[0]['open']?></td>
-            <td>random</td>
-            <td>data</td>
-            <td>placeholder</td>
-            <td>text</td>
-          </tr>
-          <tr>
-            <td>1,002</td>
-            <td>placeholder</td>
-            <td>irrelevant</td>
-            <td>visual</td>
-            <td>layout</td>
-          </tr>
-          <tr>
-            <td>1,003</td>
-            <td>data</td>
-            <td>rich</td>
-            <td>dashboard</td>
-            <td>tabular</td>
-          </tr>
-          <tr>
-            <td>1,003</td>
-            <td>information</td>
-            <td>placeholder</td>
-            <td>illustrative</td>
-            <td>data</td>
-          </tr>
-          <tr>
-            <td>1,004</td>
-            <td>text</td>
-            <td>random</td>
-            <td>layout</td>
-            <td>dashboard</td>
-          </tr>
-          <tr>
-            <td>1,005</td>
-            <td>dashboard</td>
-            <td>irrelevant</td>
-            <td>text</td>
-            <td>placeholder</td>
-          </tr>
-          <tr>
-            <td>1,006</td>
-            <td>dashboard</td>
-            <td>illustrative</td>
-            <td>rich</td>
-            <td>data</td>
-          </tr>
-          <tr>
-            <td>1,007</td>
-            <td>placeholder</td>
-            <td>tabular</td>
-            <td>information</td>
-            <td>irrelevant</td>
-          </tr>
-          <tr>
-            <td>1,008</td>
-            <td>random</td>
-            <td>data</td>
-            <td>placeholder</td>
-            <td>text</td>
-          </tr>
-          <tr>
-            <td>1,009</td>
-            <td>placeholder</td>
-            <td>irrelevant</td>
-            <td>visual</td>
-            <td>layout</td>
-          </tr>
-          <tr>
-            <td>1,010</td>
-            <td>data</td>
-            <td>rich</td>
-            <td>dashboard</td>
-            <td>tabular</td>
-          </tr>
-          <tr>
-            <td>1,011</td>
-            <td>information</td>
-            <td>placeholder</td>
-            <td>illustrative</td>
-            <td>data</td>
-          </tr>
-          <tr>
-            <td>1,012</td>
-            <td>text</td>
-            <td>placeholder</td>
-            <td>layout</td>
-            <td>dashboard</td>
-          </tr>
-          <tr>
-            <td>1,013</td>
-            <td>dashboard</td>
-            <td>irrelevant</td>
-            <td>text</td>
-            <td>visual</td>
-          </tr>
-          <tr>
-            <td>1,014</td>
-            <td>dashboard</td>
-            <td>illustrative</td>
-            <td>rich</td>
-            <td>data</td>
-          </tr>
-          <tr>
-            <td>1,015</td>
-            <td>random</td>
-            <td>tabular</td>
-            <td>information</td>
-            <td>text</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
-  </div>
-</div>
-
+<script>
+        $("#asset").change(function (){
+        var asset=$('#asset').val();
+        $.ajax({
+        type:"get",
+        data:{asset:asset,ajax:1},
+        success: function(response){
+        $('#chart').empty();
+        $('#script').empty();
+        $('#script').html(chart(response));
+        },
+        cache:true,
+        dataType:"json",
+        })
+        });
+</script>
+        <!-- Questo ajax cambia il grafico mostrato in base all'asset selezionato dall'utente (nella select saranno presenti solo quelli da lui posseduti) -->
 
     <script src="CSS-JS/assets/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script><script src="CSS-JS/dashboard.js"></script>

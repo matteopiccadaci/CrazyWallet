@@ -1,0 +1,15 @@
+{
+  "name": "demo/demo",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "matteopiccadaci",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+      "mongodb/mongodb": "1.13.*"
+  }
+}

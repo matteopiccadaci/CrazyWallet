@@ -18,3 +18,17 @@
                     $all[]=$stock[0];*/
                 }
                 -->
+
+
+
+        $("chart").change(function()){
+            var timeframe=$('#timeframe option:selected').attr("value"),
+            var asset=$('asset').val();
+            $.ajax({
+                type:"get",
+                data{timeframe:timeframe,asset:asset, ajax:3},
+                success: function(response){
+
+                }
+            })
+        }
