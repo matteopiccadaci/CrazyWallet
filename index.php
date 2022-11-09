@@ -1,5 +1,5 @@
 <?php
-require_once("php/config.php");
+require_once("config.php");
 session_start();
 if(isset($_POST['logincli'])){
     $mail=$_POST['mail'];
@@ -9,9 +9,9 @@ if(isset($_POST['logincli'])){
     $arr=mysqli_fetch_array($result, MYSQLI_ASSOC);
     if(password_verify($password,$arr['pass'])){
         $_SESSION['id']=$arr['id_utente'];
-        header("location: /dashboard.php");
+        header("location: dashboard.php");
     }
-    else echo "<script> alert ('Mail o Password errate')";
+    else echo "<script> alert ('Mail o Password errate')</script>";
 
 }
 ?>
@@ -22,7 +22,7 @@ if(isset($_POST['logincli'])){
     <!-- STILI-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel='stylesheet' href ='CSS-JS/css/style.css'>
-    <link rel='stylesheet' href ='CSS-JS/styleCrazyWallet2.css'>
+    <link rel='stylesheet' href ='CSS-JS/styleCrazyWallet14.css'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,7 +30,7 @@ if(isset($_POST['logincli'])){
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <p style="font-family: 'Brush Script MT', cursive; font-weight:bolder; font-size:50px">Crazy Stocks</p>
+        <p style="font-family: 'Brush Script MT', cursive; font-weight:bolder; font-size:50px">Crazy Wallet</p>
     </div>
     <div class="card">
         <div class="card-body login-card-body">
@@ -50,6 +50,9 @@ if(isset($_POST['logincli'])){
         </div>
         <div class="col-12">
             <h6>Non sei registrato? <a href="registrazione.php"> Premi qui</a> e registrati</h6>
+        </div>
+        <div class="col-12">
+            <h6>Oppure utilizza il nostro strumento per visualizzare<a href="stockmarket.php"> l'andamento</a> del mercato</h6>
         </div>
         </form>
     </div>

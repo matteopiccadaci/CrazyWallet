@@ -1,5 +1,4 @@
 <?php
-require_once "vendor/autoload.php";
 $username="crazywallet";
 $password="";
 $address="localhost";
@@ -8,6 +7,5 @@ $connect_db= new mysqli($address,$username,$password,$db_name);
 if ($connect_db->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-$mongoconn= new MongoDB("mongodb://localhost:27017");
-$a=$mongoconn->test;
-$mongodatabase= $mongoconn->my_crazywallet;
+
+// viene realizzato il file di configurazione per evitare di dover ripetere il codice per la connessione in ogni pagina.

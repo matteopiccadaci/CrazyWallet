@@ -32,3 +32,8 @@
                 }
             })
         }
+
+        echo '<script>var data=[]</script>';
+            foreach ($final as $stock) {
+                echo '<script>data.push(' . json_encode($stock) . ');</script>';
+            }

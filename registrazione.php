@@ -1,39 +1,7 @@
 <?php
-require_once ("php/config.php");
+require_once 'operations.php';
 if (isset($_POST['registrati'])) {
-    $mail = $_POST['mail'];
-    $pass = $_POST['password'];
-    $nome = $_POST['nome'];
-    $cognome = $_POST['cognome'];
-    $data= $_POST['data'];
-    $wallet= $_POST['wallet'];
-    $pwdLenght = mb_strlen($pass);//controllo se la lunghezza della pass è adatta
-    $eta = floor((time() - strtotime($data)) / 31556926);
-
-    if (empty($username) || empty($pass) || empty($nome) || empty($cognome) || empty($data)) {
-        $msg= 'Compila tutti i campi %s';
-    } elseif ($pwdLenght < 4 || $pwdLenght > 20) {
-        echo "<script> alert ('Registrazione non avvenuta: La lunghezza della password deve essere compresa fra 4 e 20 caratteri')</script>";}
-
-    elseif ($eta<18){
-        echo "<script> alert('Registrazione non avvenuta: L\'età per registrarsi è di almeno 18 anni') </script>";
-    } //errori
-
-
-    else {
-        $wh=password_hash($wallet, PASSWORD_BCRYPT);// viene creato un wallet all'utenteche verrà salvato in maniera sicura tramite hashing
-        $password_hash = password_hash($pass, PASSWORD_BCRYPT);// hashing password
-        $query = "
-                INSERT INTO Utenti  (nome,cognome, mail, pass, data_nascita, id_wallet)
-                VALUES ('$nome', '$cognome', '$mail', '$password_hash', '$data', '$wh')
-            ";
-        if ($result=$connect_db->query($query)){
-            header("location: /index.php");
-            echo "<script> alert('Registrazione avvenuta!')</script>";
-
-        }
-    } //registrazione avvenuta
-
+    echo add_user($_POST['nome'], $_POST['cognome'], $_POST['mail'], $_POST['password'], $_POST['wallet'], $_POST['data']);
 }
 ?>
 <html>
@@ -42,7 +10,7 @@ if (isset($_POST['registrati'])) {
     <!-- STILI-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel='stylesheet' href ='CSS-JS/css/style.css'>
-    <link rel='stylesheet' href ='CSS-JS/styleCrazyWallet2.css'>
+    <link rel='stylesheet' href ='CSS-JS/styleCrazyWallet14.css'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -78,7 +46,7 @@ if (isset($_POST['registrati'])) {
                     </div>
                     <div class="col-12">
                         <label for="wallet" class="form-label">Wallet</label>
-                        <input type="text" class="form-control"  id="wallet" placeholder="Inserisci una stringa alfanumerica " name="wallet" maxlenght="20">
+                        <input type="text" class="form-control"  id="wallet" placeholder="Inserisci una stringa alfanumerica" name="wallet" maxlenght="20">
                     </div>
                     <div class="col-12">
                         <label for="data" class="form-label">Data di nascita</label>
@@ -100,3 +68,4 @@ if (isset($_POST['registrati'])) {
 </div>
 
 </body>
+</html>
