@@ -1,5 +1,4 @@
 <?php
-require_once 'operations.php';
 require_once  'finance.php';
 require_once 'navbar.php';
 session_start();
@@ -21,7 +20,7 @@ if(isset($_GET['ajax'])){
     }
     if($_GET['ajax']==2){
         if(isset($_GET['quantita']))
-            echo get_intraday_asset_total($_GET['asset'], $_GET['quantita']);
+            echo round(get_intraday_asset_total($_GET['asset'], $_GET['quantita']),2);
         }
     exit();
     }
@@ -31,26 +30,47 @@ sul mercato e se vengono letti valori non legali se si "gioca" nella selezione d
  */
 ?>
 <?php
-if(isset($_POST['invia'])){
-    echo add_to_wallet($_POST['asset'], $_POST['quantita'], $_POST['wallet'], $_SESSION['id'], get_intraday_asset_price($_POST['asset']), get_intraday_asset_total($_POST['asset'], $_POST['quantita']));
-}
+//if(isset($_POST['invia'])){
+    //echo add_to_wallet($_POST['asset'], $_POST['quantita'], $_POST['wallet'], $_SESSION['id'], get_intraday_asset_price($_POST['asset']), get_intraday_asset_total($_POST['asset'], $_POST['quantita']));
+//}
 ?>
 
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Crazy Wallet</title>
-  <link href="CSS-JS/assets/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Custom styles for this template -->
-  <link href="CSS-JS/dashboardCrazy.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="CSS-JS/chart.js"></script>
-  <link href="CSS-JS/styleCrazyWallet14.css" rel="stylesheet">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="CSS-JS/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="CSS-JS/dist/js/adminlte.min.js"></script>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Inserisci asset</title>
+      <link href="CSS-JS/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+      <!-- Custom styles for this template -->
+      <link href="CSS-JS/dashboardCrazy.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
+      <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+      <script src="CSS-JS/chart.js"></script>
+      <link href="CSS-JS/styleCrazyWallet14.css" rel="stylesheet">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="CSS-JS/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="CSS-JS/dist/js/adminlte.min.js"></script>
+    <script>
+        function add() {
 
+            var data = {};
+            data.asset = document.getElementById("asset").value;
+            data.quantita = document.getElementById("quantita").value;
+            data.wallet = document.getElementById("wallet").value;
+            data.id = <?php echo $_SESSION['id']; ?>;
+            data.prezzo = document.getElementById("prezzo").innerText;
+            data.valore_finale = document.getElementById("valore").innerText;
+            var jsondata = JSON.stringify(data);
+            var req = new XMLHttpRequest();
+            req.onload = function(){
+                document.getElementById("divrisultato").removeAttribute("hidden");
+                document.getElementById("risposta").innerHTML = req.responseText;
+            };
+            req.open("POST", "operationsapi.php/add_to_wallet", true);
+            req.send(jsondata);
+        }
+        /* Si prendono tutti i dati necessari per l'acquisto e si inviano al server tramite una richiesta POST. */
+    </script>
 
 </head>
 <body>
@@ -64,24 +84,6 @@ if(isset($_POST['invia'])){
   <?php echo('<span><i id="logoandcustomer" style="color:#00006e">&nbsp;'.$utente[0].' '.$utente[1].'</i></span>&nbsp;') ?>
 </header>
 
-<script>
-  let quantita = document.getElementById('quantita');
-  let timeout = null;
-  quantita.addEventListener('keyup', function (e) {
-      clearTimeout(timeout);
-      timeout = setTimeout(function () {
-      }, 1000);
-  });
-
-  let asset = document.getElementById('asset');
-  let timeout2 = null;
-  asset.addEventListener('keyup', function (e) {
-      clearTimeout(timeout2);
-      timeout2 = setTimeout(function () {
-      }, 1000);
-  });
-</script>
-
 <div class="container-fluid">
   <div class="row">
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
@@ -90,7 +92,7 @@ if(isset($_POST['invia'])){
                   &nbsp;
                   <li class="nav-item">
                       <?php
-                      echo get_navbar();
+                      echo get_navbar($_SESSION['id']);
                       ?>
               </ul>
 
@@ -101,10 +103,9 @@ if(isset($_POST['invia'])){
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
               <h3>Inserisci nel portafoglio una nuova posizione</h3>
           </div>
-          <form method="post">
               <div class="form-group">
                   <label for="asset">Asset</label>
-                  <select name='asset' id="asset" class="form-control form-control-lg">
+                  <select name='asset' id="asset"  class="form-select"aria-label=".form-select-lg example">
                       <option selected disabled>Seleziona l'asset</option>
                       <?php
                       foreach($data as $asset){
@@ -116,7 +117,7 @@ if(isset($_POST['invia'])){
               <br>
               <div class="form-group">
                   <label for="quantita">Quantità</label>
-                  <input type="text" class="form-control" name='quantita' id="quantita" placeholder="Inserisci il numero di azioni" min="1">
+                  <input type="number" class="form-control" name='quantita' id="quantita" placeholder="Inserisci il numero di azioni" min="1">
               </div>
               <br>
               <div class="form-group">
@@ -134,11 +135,9 @@ if(isset($_POST['invia'])){
                   <div class="col-md-12 mt-1 border border-dark" style="border-radius: 10px; height: 38px; text-align: left"><p style="padding-top: 0.6%"><b id="valore" style="padding-left: 1%; font-size: 15px"></b></p>
               </div>
                   <br> <br>
-                  <input type="text" id="invia" name="invia" hidden value="1">
-              <button name="invia" type="submit" class="btn btn-primary" style="width: 100%; text-align: center">Invia</button>
-          </form>
-
-
+          <button name="inviaapi" type="button" class="btn btn-primary" style="width: 100%; text-align: center" onclick="add()">Invia Richiesta</button>
+                  <br> <br>
+                  <div class="col-md-12 mt-1 border border-dark" style="border-radius: 10px; height: 38px;" id="divrisultato" hidden> <p  id="stockbox"><b id="risposta"></b></p>  </div>
 
 
           <!-- Come reperibile nei docs di Apexcharts, ogni grafico deve essere compreso all'interno di un div. -->
@@ -177,7 +176,7 @@ $("#quantita").change(function(){
       }
   })
 });
-/*In questi ajax viene via via modificato il prezzo dell'asset a sè e il prezzo totale di acquisto nel caso si acquisti più di un'azione. */
+/*In questi ajax viene via via modificato il prezzo dell'asset e il prezzo totale di acquisto nel caso si acquisti più di un'azione. */
 </script>
 
 </body>

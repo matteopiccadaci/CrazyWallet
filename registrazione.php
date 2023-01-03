@@ -1,19 +1,38 @@
 <?php
 require_once 'operations.php';
-if (isset($_POST['registrati'])) {
-    echo add_user($_POST['nome'], $_POST['cognome'], $_POST['mail'], $_POST['password'], $_POST['wallet'], $_POST['data']);
-}
 ?>
 <html>
 <head>
     <title>Registrazione</title>
     <!-- STILI-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel='stylesheet' href ='CSS-JS/css/style.css'>
     <link rel='stylesheet' href ='CSS-JS/styleCrazyWallet14.css'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
+
+    <script>
+        function register() {
+
+            var data = {};
+            data.nome = document.getElementById("nome").value;
+            data.cognome = document.getElementById("cognome").value;
+            data.wallet = document.getElementById("wallet").value;
+            data.pass = document.getElementById("password").value;
+            data.passcnf= document.getElementById("passwordcnf").value;
+            data.data = document.getElementById("data").value;
+            data.mail= document.getElementById("mail").value;
+            var jsondata = JSON.stringify(data);
+            var req = new XMLHttpRequest();
+            req.onload = function(){
+                document.getElementById("risposta").removeAttribute("hidden");
+                document.getElementById("risposta").innerHTML = req.responseText;
+            };
+            req.open("POST", "operationsapi.php/add_user", true);
+            req.send(jsondata);
+        }
+        /* Si prendono tutti i dati necessari per la rimozione e si inviano al server tramite una richiesta POST. */
+    </script>
 
 </head>
 <body class="hold-transition login-page">
@@ -25,7 +44,6 @@ if (isset($_POST['registrati'])) {
     <div class="card">
         <div class="card-body login-card-body">
             <p class="login-box-msg">Crea il tuo nuovo account</p>
-            <form method="post" action="registrazione.php">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="nome" class="form-label">Nome</label>
@@ -45,6 +63,10 @@ if (isset($_POST['registrati'])) {
                         <input type="password" class="form-control"  id="password" placeholder="Inserisci una password" name="password" maxlenght="20">
                     </div>
                     <div class="col-12">
+                        <label for="password" class="form-label">Conferma password</label>
+                        <input type="password" class="form-control"  id="passwordcnf" placeholder="Inserisci di nuovo la password" name="passwordcnf" maxlenght="20">
+                    </div>
+                    <div class="col-12">
                         <label for="wallet" class="form-label">Wallet</label>
                         <input type="text" class="form-control"  id="wallet" placeholder="Inserisci una stringa alfanumerica" name="wallet" maxlenght="20">
                     </div>
@@ -52,14 +74,16 @@ if (isset($_POST['registrati'])) {
                         <label for="data" class="form-label">Data di nascita</label>
                         <input type="date" class="form-control" id="data" name="data"> <!-- Il calendario è dato dal tipo date-->
                     </div>
-                    <input type="text" id="registrati" name="registrati" hidden value="1">
-                    <button  type="submit" name="registrati" class="btn btn-primary"> Registrati </button>
+                    <button name="inviaapi" type="button" class="btn btn-primary" style="width: 100%; text-align: center" onclick="register()">Registrati</button>
                 </div>
-            </form>
             <div class="col-12">
                 <br>
                 <h6>Sei già registrato? <a href="index.php">Accedi qui</a></h6>
+                <br>
+                <p id="risposta" hidden></p>
             </div>
+
+
 
 
         </div>

@@ -20,10 +20,8 @@ if(isset($_POST['logincli'])){
     <meta charset="utf-8">
     <title>Login Clienti</title>
     <!-- STILI-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel='stylesheet' href ='CSS-JS/css/style.css'>
     <link rel='stylesheet' href ='CSS-JS/styleCrazyWallet14.css'>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>

@@ -1,10 +1,14 @@
 <?php
-require_once 'operations.php';
 require_once 'finance.php';
 require_once 'navbar.php';
 session_start();
 if(!isset($_SESSION['id']))
     header ('location: stockmarket.php');
+if (retreive_quantity($_SESSION['id'])<0 || retreive_quantity($_SESSION['id'])==null)
+    header("location:/dashboard.php");
+
+/*Questa pagina è accessibile solo se l'utente è loggato e ha almeno un asset nel suo portafoglio.
+Se viene visitata la pagina inserendo l'URL, in questi due casi si viene reindirizzati alla pagina di login*/
 
 $utente = get_user($_SESSION['id']);;
 
@@ -32,18 +36,15 @@ if(isset ($_GET['ajax'])){
         }
         echo json_encode($final);
     }
-    else if ($_GET['ajax']==3) {
-
-    }
     exit();
-}# A prescindere da quale opzione (asset o timeframe) venga cambiato, l'operazione da fare è la stessa, quindi si può riutilizzare lo stesso codice.
+}// A prescindere da quale opzione (asset o timeframe) venga cambiato, l'operazione da fare è la stessa (basta cambiare il timeframe di riferimento), quindi si può riutilizzare lo stesso codice.
 ?>
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Crazy Wallet</title>
+    <title>I tuoi asset</title>
     <link href="CSS-JS/assets/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="CSS-JS/dashboardCrazy.css" rel="stylesheet">
@@ -51,6 +52,7 @@ if(isset ($_GET['ajax'])){
     <script src="CSS-JS/chart.js"></script>
     <link href="CSS-JS/styleCrazyWallet14.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
 
 </head>
 <body>
@@ -70,7 +72,7 @@ if(isset ($_GET['ajax'])){
             <div class="position-sticky pt-3 sidebar-sticky">
                 &nbsp;
                 <ul class="nav flex-column">
-                   <?php echo get_navbar(); ?>
+                   <?php echo get_navbar($_SESSION['id']); ?>
                 </ul>
 
             </div>
@@ -128,6 +130,8 @@ if(isset ($_GET['ajax'])){
                         echo "<td id='tclose".$i."'></td>";
                         echo "</tr>";
                     }
+                    //Viene popolata la tabella con i dati dell'asset e del timeframe selezionato. Se non viene selezionato nessun asset, la tabella rimane nascosta.
+
                     ?>
                     </tbody>
                 </table>

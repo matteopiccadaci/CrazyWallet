@@ -1,11 +1,10 @@
 <?php
-require_once 'operations.php';
 require_once 'finance.php';
 require_once 'navbar.php';
 session_start();
-if(isset($_SESSION['id'])) {
+if(isset($_SESSION['id']))
     $utente = get_user($_SESSION['id']);
-}
+
       if(isset ($_GET['ajax'])){
         $out="";
 
@@ -39,7 +38,7 @@ if(isset($_SESSION['id'])) {
   <head>
     <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Crazy Wallet</title>
+    <title>Mercato</title>
     <link href="CSS-JS/assets/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
    <link href="CSS-JS/dashboardCrazy.css" rel="stylesheet">
@@ -48,6 +47,7 @@ if(isset($_SESSION['id'])) {
       <script type="text/javascript" src="CSS-JS/table3.js"></script>
    <link href="CSS-JS/styleCrazyWallet14.css" rel="stylesheet">
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
 
   </head>
   <body>
@@ -68,7 +68,7 @@ if(isset($_SESSION['id'])) {
         <ul class="nav flex-column">
         &nbsp;
               <?php if (isset($_SESSION['id'])) {
-                    echo get_navbar(); //Menù di navigazione
+                    echo get_navbar($_SESSION['id']); //Menù di navigazione
                 }
             else echo ' <li class="nav-item">
                 <a id="nav_link" class="nav-link active" aria-current="page" href="index.php">

@@ -1,24 +1,29 @@
 <?php
-require_once 'operations.php';
 require_once 'navbar.php';
 require_once 'finance.php';
-require 'rendimento.php';
 session_start();
 if(!isset($_SESSION['id']))
     header("location:/index.php");
 $utente=get_user($_SESSION['id']);
+if (retreive_quantity($_SESSION['id'])<0 || retreive_quantity($_SESSION['id'])==null)
+    header("location:/dashboard.php");
+
+/*Questa pagina è accessibile solo se l'utente è loggato e ha almeno un asset nel suo portafoglio.
+Se viene visitata la pagina inserendo l'URL, in questi due casi si viene reindirizzati alla pagina di login*/
+
 if (isset($_GET['ajax'])) {
     $out="";
     if($_GET['ajax']==1) {
         $final=[
             'valoreold' => round(get_value_single_asset($_SESSION['id'], $_GET['asset']),2),
-            'valorenew'=> get_intraday_asset_total($_GET['asset'], retreive_total_quantity($_SESSION['id'], $_GET['asset'])),
+            'valorenew'=> round(get_intraday_asset_total($_GET['asset'], retreive_total_quantity($_SESSION['id'], $_GET['asset'])),2),
             'valorediff' => round((get_intraday_asset_total($_GET['asset'], retreive_total_quantity($_SESSION['id'], $_GET['asset']))-round(get_value_single_asset($_SESSION['id'], $_GET['asset']),2)),2)
         ];
     }
     echo json_encode($final);
     exit();
 }
+// Vengono generati i valori da passare alla riassunto del portafoglio.
 ?>
 
 <?php
@@ -35,8 +40,9 @@ echo '<script>var values=[]</script>';
 foreach ($values as $value){
     echo '<script>values.push(' . json_encode($value) . ');</script>';
 }
-?>
 
+//Generazione dei valori per il grafico a torta, in base all'allocation del portafoglio.
+?>
 
 
 
@@ -46,7 +52,7 @@ foreach ($values as $value){
   <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Crazy Wallet</title>
+      <title>Il tuo Wallet</title>
       <link href="CSS-JS/assets/dist/css/bootstrap.min.css" rel="stylesheet">
       <!-- Custom styles for this template -->
       <link href="CSS-JS/dashboardCrazy.css" rel="stylesheet">
@@ -57,6 +63,7 @@ foreach ($values as $value){
       <link href="CSS-JS/styleCrazyWallet14.css" rel="stylesheet">
       <script src="CSS-JS/PieChart.js"></script>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
 
   </head>
   <body>
@@ -77,7 +84,7 @@ foreach ($values as $value){
       <div class="position-sticky pt-3 sidebar-sticky">
           &nbsp;
         <ul class="nav flex-column">
-          <?php echo get_navbar(); ?>
+          <?php echo get_navbar($_SESSION['id']); ?>
         </ul>
 
       </div>
@@ -85,12 +92,12 @@ foreach ($values as $value){
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Dashboard</h1>
+        <h1 class="h2">Il mio Portafoglio</h1>
       </div>
 
       <!-- Come reperibile nei docs di Apexcharts, ogni grafico deve essere compreso all'interno di un div. -->
         <div id="contenitore" class="row">
-        <div class="card" id="piediv">
+        <div class="card" id="piediv" style="margin-top: 1%">
             <div class="card-body">
                 <h3>Asset Allocation</h3>
                 <div>
@@ -103,7 +110,7 @@ foreach ($values as $value){
             <div id="divisore">  </div>
             <br>
 
-        <div class="card" id="rendimento">
+        <div class="card" id="rendimento" style="margin-top: 1%">
             <div class="card-body">
             <div  class="table-responsive">
                 <table  id="table" class="table table-striped table-sm" style="text-align: center">
@@ -145,8 +152,7 @@ foreach ($values as $value){
                 echo '</select>';
                 echo '<br> <p><h6 id="valoreoldint" hidden>Valore di acquisto</h6><p id="valoreold"></p></p> <span></span> <p><h6 id="valorenewint" hidden>Valore attuale</h6><p id="valorenew"></p></p> <span></span> <p><h6 id="valorediffint" hidden>Variazione</h6><p id="valorediff"></p></p>';
                 ?>
-            <!-- In questa sezione, si crea la tabella con tutti i price point più aggiornati solamente per gli asset facenti parte del portafoglio (viene infatti controllato che la quantità totale dell'asset sia superiore a 0. Al contempo vengono presi sia valore d'acquisto, sia valore attuale per poi mostrarne la differenza netta. -->
-
+                <!-- In questa sezione, si crea la tabella con tutti i price point più aggiornati solamente per gli asset facenti parte del portafoglio (viene infatti controllato che la quantità totale dell'asset sia superiore a 0. Al contempo vengono presi sia valore d'acquisto, sia valore attuale per poi mostrarne la differenza netta. -->
             </div>
         </div>
         <br>

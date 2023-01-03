@@ -1,27 +1,28 @@
 <?php
-require_once 'operations.php';
 require_once  'finance.php';
 require_once 'navbar.php';
 session_start();
 if(!isset($_SESSION['id']))
     header("location:/index.php");
 $utente=get_user($_SESSION['id']);
-?> <!-- verifica dell'utente -->
-
-<?php
-$JSON=file_get_contents("php/s&p500.json");
-$data = json_decode($JSON);
+if (retreive_quantity($_SESSION['id'])<0 || retreive_quantity($_SESSION['id'])==null)
+    header("location:/dashboard.php");
+//verifica dell'utente
 ?>
-
 <?php
 if(isset($_GET['ajax'])){
     if($_GET['ajax']==1){
-        if (isset($_GET['asset']))
-            echo get_intraday_asset_price($_GET['asset']);
+        if (isset($_GET['asset'])) {
+            echo json_encode([
+                0 => get_intraday_asset_price($_GET['asset']),
+                1 => retreive_total_quantity($_SESSION['id'], $_GET['asset']),
+            ]);
+        }
+
     }
     if($_GET['ajax']==2){
         if(isset($_GET['quantita']))
-            echo get_intraday_asset_total($_GET['asset'], $_GET['quantita']);
+            echo round(get_intraday_asset_total($_GET['asset'], $_GET['quantita']),2);
     }
     exit();
 }
@@ -30,18 +31,11 @@ Vengono fatti controlli per evitare di mostrare messaggi di errore come, ad esem
 sul mercato e se vengono letti valori non legali se si "gioca" nella selezione di quantità e asset.
  */
 ?>
-<?php
-if(isset($_POST['invia'])){
-    echo remove_from_wallet($_POST['asset'], -$_POST['quantita'], $_POST['wallet'], $_SESSION['id'], get_intraday_asset_price($_POST['asset']), get_intraday_asset_total($_POST['asset'],-($_POST['quantita'])));
-}
-/*La differenza con l'acquisto è in sostanza il fatto che la quantità e il valore totale vengono passate come valori negativi. */
-?>
-
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Crazy Wallet</title>
+    <title>Rimuovi asset</title>
     <link href="CSS-JS/assets/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="CSS-JS/dashboardCrazy.css" rel="stylesheet">
@@ -51,6 +45,29 @@ if(isset($_POST['invia'])){
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="CSS-JS/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="CSS-JS/dist/js/adminlte.min.js"></script>
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
+
+    <script>
+        function remove() {
+
+            var data = {};
+            data.asset = document.getElementById("asset").value;
+            data.quantita = document.getElementById("quantita").value;
+            data.wallet = document.getElementById("wallet").value;
+            data.id = <?php echo $_SESSION['id']; ?>;
+            data.prezzo = document.getElementById("prezzo").innerText;
+            data.valore_finale = document.getElementById("valore").innerText;
+            var jsondata = JSON.stringify(data);
+            var req = new XMLHttpRequest();
+            req.onload = function(){
+                document.getElementById("divrisultato").removeAttribute("hidden");
+                document.getElementById("risposta").innerHTML = req.responseText;
+            };
+            req.open("POST", "operationsapi.php/remove_from_wallet", true);
+            req.send(jsondata);
+        }
+        /* Si prendono tutti i dati necessari per la rimozione e si inviano al server tramite una richiesta POST. */
+    </script>
 
 
 </head>
@@ -65,24 +82,6 @@ if(isset($_POST['invia'])){
     <?php echo('<span><i id="logoandcustomer" style="color:#00006e">&nbsp;'.$utente[0].' '.$utente[1].'</i></span>&nbsp;') ?>
 </header>
 
-<script>
-    let quantita = document.getElementById('quantita');
-    let timeout = null;
-    quantita.addEventListener('keyup', function (e) {
-        clearTimeout(timeout);
-        timeout = setTimeout(function () {
-        }, 1000);
-    });
-
-    let asset = document.getElementById('asset');
-    let timeout2 = null;
-    asset.addEventListener('keyup', function (e) {
-        clearTimeout(timeout2);
-        timeout2 = setTimeout(function () {
-        }, 1000);
-    });
-</script>
-
 <div class="container-fluid">
     <div class="row">
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
@@ -91,7 +90,7 @@ if(isset($_POST['invia'])){
                     &nbsp;
                     <li class="nav-item">
                         <?php
-                        echo get_navbar();
+                        echo get_navbar($_SESSION['id']);
                         ?>
                 </ul>
 
@@ -102,14 +101,15 @@ if(isset($_POST['invia'])){
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h3>Rimuovi dal portafoglio una posizione</h3>
             </div>
-            <form method="post">
                 <div class="form-group">
                     <label for="asset">Asset</label>
                         <?php
                         echo ' <select id="asset" name="asset" class="form-select"aria-label=".form-select-lg example"> 
                                 <option selected disabled>I tuoi asset</option>';
                         foreach (retreive_user_assets($_SESSION['id']) as $asset) {
-                            echo "<option value='$asset[0]'>$asset[0]</option>";
+                            if(retreive_total_quantity($_SESSION['id'], $asset[0]) > 0){
+                                echo "<option value='$asset[0]'>$asset[0]</option>";
+                            }
                         }
                         echo '</select>';
                         ?> <!-- Il tipo restituito dal json_decode è di tipo stdClass. In questo caso si comporta come un array associativo -->
@@ -117,7 +117,7 @@ if(isset($_POST['invia'])){
                 <br>
                 <div class="form-group">
                     <label for="quantita">Quantità</label>
-                    <input type="text" class="form-control" name='quantita' id="quantita" placeholder="Inserisci il numero di azioni" min="1">
+                    <input type="number" class="form-control" name='quantita' id="quantita" placeholder="Inserisci il numero di azioni" min="1">
                 </div>
                 <br>
                 <div class="form-group">
@@ -135,9 +135,9 @@ if(isset($_POST['invia'])){
                         <div class="col-md-12 mt-1 border border-dark" style="border-radius: 10px; height: 38px; text-align: left"><p style="padding-top: 0.6%"><b id="valore" style="padding-left: 1%; font-size: 15px"></b></p>
                         </div>
                         <br> <br>
-                        <input type="text" id="invia" name="invia" hidden value="1">
-                        <button name="invia" type="submit" class="btn btn-primary" style="width: 100%; text-align: center">Invia</button>
-            </form>
+                        <button name="inviaapi" type="button" class="btn btn-primary" style="width: 100%; text-align: center" onclick="remove()">Invia Richiesta</button>
+                        <br> <br>
+                        <div class="col-md-12 mt-1 border border-dark" style="border-radius: 10px; height: 38px;" id="divrisultato" hidden> <p  id="stockbox"><b id="risposta"></b></p>  </div>
 
 
 
@@ -160,12 +160,18 @@ if(isset($_POST['invia'])){
             data:{asset:asset, quantita:quantita, ajax:1},
             success: function(response){
                 $('#quantita').empty();
+                $('#quantita').attr('max', response[1]);
                 $('#valore').empty();
-                $('#prezzo').html(response);
+                $('#prezzo').html(response[0]);
 
-            }
+            },
+            dataType:"json",
         })
     });
+
+    /*Si impone che in base all'asset scelto, vengano aggiornati in tempo reale i valori di prezzo attuale e di quantità
+    massima vendibile, pari a quella presente nel portafoglio dell'utente per quel particolare asset.
+     */
 
     $("#quantita").change(function(){
         var asset =$('#asset').val(),
